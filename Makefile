@@ -1,0 +1,18 @@
+SCRIPT := shweb
+
+-include .config.mk
+DESTDIR ?= /usr/bin
+TARGET := $(DESTDIR)/$(SCRIPT)
+
+install: $(SCRIPT) .config.mk
+	install -Dm755 $< $(TARGET)
+
+uninstall:
+	rm -f $(TARGET)
+
+.PHONY: .config.mk
+.config.mk:
+	@echo "DESTDIR=$(DESTDIR)" > $@
+
+check:
+	@shellcheck -s sh $(SCRIPT)

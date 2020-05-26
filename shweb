@@ -1,0 +1,300 @@
+#!/usr/bin/env sh
+
+# defaults, can be overloaded in site.conf
+
+# Output format of date for human consumption
+: "${DATE_FMT:="--iso-8601"}"
+
+# Default name of directory containing publications
+# Will be reflected in output hierarchy.
+: "${POSTS_DIR:="posts"}"
+
+# Default about page path.
+: "${ABOUT_PAGE:="/about.html"}"
+
+# Enable RSS feed
+: "${RSS:="/feed.xml"}"
+
+# opts
+
+usage () {
+    echo "Usage: $(basename "$0") [-h|--help] [input dir]"
+    exit "${1:-1}"
+}
+
+for arg ; do
+case "$arg" in
+--help|-h) usage 0; shift ;;
+esac
+done
+
+trap "exit 1" USR1
+PROC=$$
+abort() {
+    [ "$1" ] && echo "$@" >&2
+    kill -USR1 $PROC
+}
+
+# longest common prefix
+# $1=/a/b/c/d $2=/a/b/e/f => /a/b/
+lcprefix() { printf "%s\n%s\n" "$1" "$2" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1/'; }
+
+# takes canonical, absolute path as inputs,
+# prints relative path from dir $1 to file|dir $2
+relpath() {(
+    if [ "$1" = "/" ]; then src=""; else src="$1"; fi
+    p=$(lcprefix "$src" "$2")
+    [ "${src#${p}}" ] || printf "./"
+    printf "%s" "${src#${p%/}}" |sed 's;[^/]*$;;' |sed 's;[^/]*/;../;g'
+    printf "%s" "${2#/${p#/}}" |sed 's;^/;;'
+)}
+
+# print the relative path from file $1 to file|dir $2
+relhreff() {(
+    src=${1%/*}
+    # cleanup target
+    tgt=${2%*index.htm*}
+    tgt=${tgt%/}
+    relpath "$src" "$tgt"
+)}
+
+# get publication date
+pub_date() {(
+    t="$(grep '^DATE=' "$1" | head -1 | cut -d= -f2-)"
+    if [ "$t" ]; then
+        echo "$t"
+    else
+        echo "@$(stat -c %Y "$1")"
+    fi
+)}
+
+# get publication date - HTML element
+pub_date_fmt() {(
+    t="$(pub_date "$1")"
+    [ -z "$t" ] && return
+    echo "<time datetime=\"$(date -d "$t" --iso-8601)\">$(date -d "$t" ${DATE_FMT})</time>"
+)}
+
+# get publication description
+pub_desc() {(
+    d="$(grep '^DESC=' "$1" | head -1 | cut -d= -f2-)"
+    [ "$d" ] && echo "$d"
+)}
+
+# get publication description - HTML element
+pub_desc_fmt() {
+    d="$(pub_desc "$1")"
+    [ -z "$d" ] && return
+    echo "<div class=\"description\">$d</div>"
+}
+
+# get publication title
+# TODO: currently only support '# ', add support for other title forms.
+pub_title() { grep -e '^# ' "$1" | head -1 | cut -d' ' -f2-; }
+
+# List all CSS files, using relative path from $1
+style() {
+    find "${IDIR}" -iname "*.css" | while read -r css; do
+        cat <<_style
+    <link rel="stylesheet" href="$(relhreff "$1" "$css")"/>
+_style
+    done
+}
+
+favicon() {
+    echo "<link rel=icon href=data:,>"
+}
+
+about() {
+    if [ -f "${ODIR}${ABOUT_PAGE}" ]; then
+        echo "<a href=\"$(relhreff "$1" "${IDIR}${ABOUT_PAGE}")\">about</a>"
+    fi
+}
+
+feed() {
+    if [ "${RSS}" ]; then
+        echo "<a href=\"$(relhreff "$1" "${IDIR}${RSS}")\">rss</a>"
+    fi
+}
+
+header() {
+    cat <<_header
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    $(favicon "$1")
+    <title>${SITE_TITLE}</title>
+$(style "$1")
+</head>
+<body>
+    <header>
+        <div>
+            <a href="$(relhreff "$1" "${IDIR}/")">Home</a>
+        </div>
+        <div>
+            $(about "$1")
+            $(feed "$1")
+        </div>
+    </header>
+_header
+}
+
+footer() {
+    cat <<_footer
+</body>
+</html>
+_footer
+}
+
+md2html() {
+    cat <<_main
+$(header "$1")
+
+<main>
+    <div class="title">
+        <h1>$(pub_title "$1")</h1>
+        $(pub_date_fmt "$1")
+    </div>
+$(sed -e '/^# /d' \
+      -e '/^DATE=/d' \
+      -e '/^DESC=/d' \
+      "$1" | $MD2HTML)
+</main>
+
+$(footer "$1")
+_main
+}
+
+# list_file helper printing a file list.
+print_sorted_file_list() {
+    # Print all .md files from input POSTS_DIR,
+    # reverse sort on DATE= field within,
+    # print name translated to output dir.
+    find "${IDIR}${1}" -maxdepth 1 -type f -name '*.md' | \
+        while read -r f; do
+            printf "%s:%s\n" "$(date -d "$(pub_date "$f")" --iso-8601)" "$f"
+        done | sort -r | cut -d: -f2
+}
+
+# List .html files 1 depth under a path.
+# $1: name of index listing the files.
+# $2: name of directory being listed.
+list_files() {(
+    print_sorted_file_list "$2" | while read -r src; do
+        tgt=$(echo "$src" | sed 's;.md;.html;')
+        cat <<_file
+    <section class="list-item">
+        <h1><a href="$(relhreff "${IDIR}$1" "${tgt}")">$(pub_title "$src")</a></h1>
+        $(pub_date_fmt "$src")
+        $(pub_desc_fmt "$src")
+    </section>
+_file
+    done
+)}
+
+# Generate an index of content below.
+# $1: name of index being generated.
+# $2: root of content being listed.
+# $3: output file
+create_index() {
+    idir_rel_path="${IDIR}$1"
+    echo "* $3"
+    cat <<_main > "$3"
+$(header "$idir_rel_path")
+
+<main class="list">
+$(list_files "$1" "$2")
+</main>
+
+$(footer "$idir_rel_path")
+_main
+}
+
+list_items() {(
+    print_sorted_file_list "$1" | while read -r src; do
+        tgt=$(echo "$src" | sed 's;.md;.html;')
+        cat <<_item
+    <item>
+        <title>$(pub_title "$src")</title>
+        <link>${SITE_URL}${1}/$(basename "$tgt")</link>
+        <pubDate>$(date -d "$(pub_date "$src")" --utc)</pubDate>
+
+        <guid>${SITE_URL}${1}/$(basename "$tgt")</guid>
+        <description>$(pub_desc "$src")</description>
+    </item>
+_item
+    done
+)}
+
+# Generate an RSS feed of publications
+# $1: name of content being listed.
+# $2: output file
+create_feed() {
+    echo "* $2"
+    cat <<_rss > "$2"
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${SITE_TITLE}</title>
+    <link>${SITE_URL}</link>
+    <description>Recent content on ${SITE_TITLE}</description>
+    <generator>shweb</generator>
+    <lastBuildDate>$(date --utc)</lastBuildDate>
+
+    <atom:link href="${SITE_URL}${RSS}" rel="self" type="application/rss+xml" />
+
+$(list_items "$1")
+
+  </channel>
+</rss>
+_rss
+}
+
+IDIR="$(readlink -f "${1:-${PWD}}")"
+if [ ! -f "${IDIR}/site.conf" ]; then
+    abort "configuration file ${IDIR}/site.conf not found."
+fi
+# shellcheck source=/dev/null
+. "${IDIR}/site.conf"
+
+if [ -z "$POSTS_DIR" ] || [ ! -d "${IDIR}/$POSTS_DIR" ]; then
+    abort "\$POSTS_DIR undefined or not a directory.\n
+\$POSTS_DIR must point to a directory containing articles to list on the homepage."
+fi
+
+ODIR="$(readlink -f "$OUTPUT_DIR")"
+if [ -z "$ODIR" ]; then
+    abort "OUTPUT_DIR must be defined in your site.conf"
+fi
+
+if [ "$ODIR" = "$IDIR" ]; then
+    abort "Unsafe output dir $ODIR, abort."
+fi
+
+rm -rf "$ODIR"
+mkdir -p "$ODIR"
+
+for filetype in css html; do
+    find "${IDIR}" -iname "*.${filetype}" | while read -r f; do
+        o="${ODIR}${f#${IDIR}*}"
+        mkdir -p "$(dirname "$o")"
+        echo "* $f -> $o"
+        cp "$f" "${o}"
+    done
+done
+
+find "${IDIR}" -iname '*.md' -print | while read -r f; do
+    o="${ODIR}$(echo "${f#${IDIR}*}" | sed 's;.md;.html;')"
+    echo "* $f -> $o"
+    mkdir -p "$(dirname "$o")"
+    md2html "$f" > "$o"
+done
+
+create_index "/index.html" "/${POSTS_DIR}" "${ODIR}/index.html"
+create_index "/${POSTS_DIR}/index.html" "/${POSTS_DIR}" "${ODIR}/${POSTS_DIR}/index.html"
+
+if [ "$RSS" ]; then
+    create_feed "/${POSTS_DIR}" "${ODIR}${RSS}"
+fi
