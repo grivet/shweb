@@ -281,7 +281,7 @@ for filetype in css html; do
         o="${ODIR}${f#${IDIR}*}"
         mkdir -p "$(dirname "$o")"
         echo "* $f -> $o"
-        cp "$f" "${o}"
+        cp "$f" "$o"
     done
 done
 
