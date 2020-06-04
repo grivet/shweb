@@ -260,9 +260,18 @@ fi
 # shellcheck source=/dev/null
 . "${IDIR}/site.conf"
 
+ABORT=''
+for var in SITE_TITLE SITE_URL OUTPUT_DIR MD2HTML; do
+    if [ ! "$(eval "echo \$$var")" ]; then
+        echo "$var is not set." >&2
+        ABORT=y
+    fi
+done
+[ "$ABORT" ] && abort "Missing mandatory option, abort."
+
 if [ -z "$POSTS_DIR" ] || [ ! -d "${IDIR}/$POSTS_DIR" ]; then
-    abort "\$POSTS_DIR undefined or not a directory.\n
-\$POSTS_DIR must point to a directory containing articles to list on the homepage."
+    abort "POSTS_DIR is not set or not a directory.
+POSTS_DIR must point to a directory containing articles to list on the homepage."
 fi
 
 ODIR="$(readlink -f "$OUTPUT_DIR")"
