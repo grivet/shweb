@@ -7,11 +7,9 @@ Static blog generator, written in POSIX shell.
 A markdown-to-HTML command must be provided. This example configuration
 assumes `'/usr/bin/markdown'` is usable. You can install [discount] for example.
 
-    $ # Local installation
-    $ make install DESTDIR=~/bin
-    $ shweb ./example
-    $ cd /tmp/shweb
-    $ python -m http.server 8000
+    ./shweb ./example
+    cd /tmp/shweb
+    python -m http.server 8000
 
 The website is then available [locally](http://0.0.0.0:8000/).
 
@@ -19,13 +17,13 @@ The website is then available [locally](http://0.0.0.0:8000/).
 
 ## Installation
 
-    $ make install DESTDIR=~bin # DESTDIR is memorized
-    $ make uninstall # Uses DESTDIR previously defined
-    $ make install # Uses DESTDIR previously defined
+    make install DESTDIR=~bin # DESTDIR is memorized
+    make uninstall # Uses DESTDIR previously defined
+    make install # Uses DESTDIR previously defined
 
 After some edits:
 
-    $ make check # Run shellcheck
+    make check # Run shellcheck
 
 ## Usage
 
