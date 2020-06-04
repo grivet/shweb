@@ -28,6 +28,7 @@ case "$arg" in
 esac
 done
 
+# Used to abort execution from sub-shells.
 trap "exit 1" USR1
 PROC=$$
 abort() {
