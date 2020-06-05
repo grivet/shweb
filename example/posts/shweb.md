@@ -5,7 +5,7 @@ Static blog generator, written in POSIX shell.
 ## Quick start
 
 A markdown-to-HTML command must be provided. This example configuration
-assumes `'/usr/bin/markdown'` is usable. You can install [discount] for example.
+assumes `'/usr/bin/markdown'` is available. You can use [discount] for example.
 
     ./shweb ./example
     python -m http.server 8000 --directory /tmp/shweb
