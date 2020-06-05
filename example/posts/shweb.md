@@ -98,11 +98,9 @@ This description will appear on the homepage list and in the `RSS` feed.
 
 ## TODO
 
- - [x] Use a date field in articles instead of last modification time.
- - [x] Sort articles per date.
- - [x] About page.
- - [x] RSS feed.
- - [ ] Allow undated about page.
- - [ ] Favicon.
- - [ ] deploy static assets (images, scripts, etc).
- - [ ] limit feed length to N last items.
+ - deploy static assets (images, scripts, etc).
+ - Support tagging articles.
+ - Support article series.
+ - Favicon.
+ - Allow undated about page.
+ - limit feed length to N last items.
