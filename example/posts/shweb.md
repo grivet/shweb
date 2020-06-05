@@ -16,7 +16,7 @@ The website is then available [locally](http://0.0.0.0:8000/).
 
 ## Installation
 
-    make install DESTDIR=~bin # DESTDIR is memorized
+    make install DESTDIR=~/bin # DESTDIR is memorized
     make uninstall # Uses DESTDIR previously defined
     make install # Uses DESTDIR previously defined
 
