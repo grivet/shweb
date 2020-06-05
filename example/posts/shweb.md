@@ -8,8 +8,7 @@ A markdown-to-HTML command must be provided. This example configuration
 assumes `'/usr/bin/markdown'` is usable. You can install [discount] for example.
 
     ./shweb ./example
-    cd /tmp/shweb
-    python -m http.server 8000
+    python -m http.server 8000 --directory /tmp/shweb
 
 The website is then available [locally](http://0.0.0.0:8000/).
 
