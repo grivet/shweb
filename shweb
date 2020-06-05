@@ -296,11 +296,15 @@ for filetype in css html; do
 done
 
 find "${IDIR}" -iname '*.md' -print | while read -r f; do
+( \
     o="${ODIR}$(echo "${f#${IDIR}*}" | sed 's;.md;.html;')"
     echo "* $f -> $o"
     mkdir -p "$(dirname "$o")"
     md2html "$f" > "$o"
+) &
 done
+
+wait
 
 create_index "/index.html" "/${POSTS_DIR}" "${ODIR}/index.html"
 create_index "/${POSTS_DIR}/index.html" "/${POSTS_DIR}" "${ODIR}/${POSTS_DIR}/index.html"
