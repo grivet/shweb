@@ -42,10 +42,11 @@ their default is used:
     # Directory containing your articles in source dir.
     POSTS_DIR=posts
 
-    # Path to an about page in output.
-    # /about.html can be created by writing /about.md in source dir.
-    # Link to about page will be omitted if this variable is set to "".
-    ABOUT_PAGE="/about.html"
+    # Navigation menu on top.
+    # List each path to be linked and how they should be named.
+    NAV_MENU="
+    /about.html: about
+    "
 
     # Path to the generated RSS feed.
     # Skipped if this variable is set to "".

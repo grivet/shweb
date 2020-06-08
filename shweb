@@ -9,8 +9,10 @@
 # Will be reflected in output hierarchy.
 : "${POSTS_DIR:="posts"}"
 
-# Default about page path.
-: "${ABOUT_PAGE:="/about.html"}"
+# Default nav menu
+: "${NAV_MENU:="
+/about.html: about
+"}"
 
 # Enable RSS feed
 : "${RSS:="/feed.xml"}"
@@ -106,17 +108,20 @@ favicon() {
     echo "<link rel=icon href=data:,>"
 }
 
-about() {
-    if [ -f "${ODIR}${ABOUT_PAGE}" ]; then
-        echo "<a href=\"$(relhreff "$1" "${IDIR}${ABOUT_PAGE}")\">about</a>"
-    fi
-}
-
 feed() {
     if [ "${RSS}" ]; then
         echo "<a href=\"$(relhreff "$1" "${IDIR}${RSS}")\">rss</a>"
     fi
 }
+
+nav_menu() {(
+    IFS=$'\n'
+    for line in $NAV_MENU; do
+        path="$(echo "$line" | cut -d: -f1)"
+        name="$(echo "$line" | cut -d: -f2)"
+        echo "<a href=\"$(relhreff "$1" "${IDIR}${path}")\">${name}</a>"
+    done
+)}
 
 header() {
     cat <<_header
@@ -135,7 +140,7 @@ $(style "$1")
             <a href="$(relhreff "$1" "${IDIR}/")">Home</a>
         </div>
         <div>
-            $(about "$1")
+            $(nav_menu "$1")
             $(feed "$1")
         </div>
     </header>
