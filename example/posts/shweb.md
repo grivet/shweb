@@ -103,5 +103,4 @@ This description will appear on the homepage list and in the `RSS` feed.
  - Support tagging articles.
  - Support article series.
  - Favicon.
- - Allow undated about page.
  - limit feed length to N last items.

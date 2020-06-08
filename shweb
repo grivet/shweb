@@ -154,14 +154,15 @@ footer() {
 _footer
 }
 
-md2html() {
+md2html() {(
+    is_post="${1#${IDIR}/${POSTS_DIR}/$(basename "$1")}y"
     cat <<_main
 $(header "$1")
 
 <main>
     <div class="title">
         <h1>$(pub_title "$1")</h1>
-        $(pub_date_fmt "$1")
+        $(test $is_post = 'y' && pub_date_fmt "$1")
     </div>
 $(sed -e '/^# /d' \
       -e '/^DATE=/d' \
@@ -171,7 +172,7 @@ $(sed -e '/^# /d' \
 
 $(footer "$1")
 _main
-}
+)}
 
 # list_file helper printing a file list.
 print_sorted_file_list() {
