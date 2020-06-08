@@ -17,6 +17,9 @@
 # Enable RSS feed
 : "${RSS:="/feed.xml"}"
 
+# Meta data separator
+: "${META:="-->"}"
+
 # opts
 
 usage () {
@@ -61,38 +64,42 @@ relhreff() {(
     relpath "$src" "$tgt"
 )}
 
-# get publication date
-pub_date() {(
-    t="$(grep '^DATE=' "$1" | head -1 | cut -d= -f2-)"
-    if [ "$t" ]; then
-        echo "$t"
-    else
-        echo "@$(stat -c %Y "$1")"
-    fi
+# Extract metadata
+# $1: source file
+# $2: metadata name
+meta_data() { sed "/^${META}$/q" "$1" | grep "^${2}:" | head -1 | cut -d: -f2-; }
+
+# get date metadata
+meta_date() { meta_data "$1" date; }
+
+# get date metadata - HTML element
+meta_date_fmt() {(
+    d="$(meta_date "$1")"
+    [ -z "$d" ] && d="@$(stat -c %Y "$1")"
+    echo "<time datetime=\"$(date -d "$d" --iso-8601)\">$(date -d "$d" ${DATE_FMT})</time>"
 )}
 
-# get publication date - HTML element
-pub_date_fmt() {(
-    t="$(pub_date "$1")"
-    [ -z "$t" ] && return
-    echo "<time datetime=\"$(date -d "$t" --iso-8601)\">$(date -d "$t" ${DATE_FMT})</time>"
-)}
+# get summary metadata
+meta_summary() { meta_data "$1" summary; }
 
-# get publication description
-pub_desc() {(
-    d="$(grep '^DESC=' "$1" | head -1 | cut -d= -f2-)"
-    [ "$d" ] && echo "$d"
-)}
-
-# get publication description - HTML element
-pub_desc_fmt() {
-    d="$(pub_desc "$1")"
-    [ -z "$d" ] && return
-    echo "<div class=\"description\">$d</div>"
+# get summary metadata - HTML element
+meta_summary_fmt() {
+    s="$(meta_summary "$1")"
+    [ -z "$s" ] && return
+    echo "<div class=\"description\">$s</div>"
 }
 
-# get publication title
+# get title metadata
+meta_title() { meta_data "$1" title; }
+
+# get title metadata - HTML element
 # TODO: currently only support '# ', add support for other title forms.
+meta_title_fmt() {(
+    t="$(meta_title "$1")"
+    [ -z "$t" ] && t="$(grep -e '^# ' "$1" | head -1 | cut -d' ' -f2-)"
+    echo "$t"
+)}
+
 pub_title() { grep -e '^# ' "$1" | head -1 | cut -d' ' -f2-; }
 
 # List all CSS files, using relative path from $1
@@ -154,6 +161,15 @@ footer() {
 _footer
 }
 
+# print file with metadata removed
+metaless_cat() {
+    if grep -q -- "^${META}$" "$1"; then
+        awk "p; /^${META}$/{p=1}" "$1"
+    else
+        cat "$1"
+    fi
+}
+
 md2html() {(
     is_post="${1#${IDIR}/${POSTS_DIR}/$(basename "$1")}y"
     cat <<_main
@@ -161,13 +177,10 @@ $(header "$1")
 
 <main>
     <div class="title">
-        <h1>$(pub_title "$1")</h1>
-        $(test $is_post = 'y' && pub_date_fmt "$1")
+        <h1>$(meta_title_fmt "$1")</h1>
+        $(test $is_post = 'y' && meta_date_fmt "$1")
     </div>
-$(sed -e '/^# /d' \
-      -e '/^DATE=/d' \
-      -e '/^DESC=/d' \
-      "$1" | $MD2HTML)
+$(metaless_cat "$1" | sed -e '/^# /d' | $MD2HTML)
 </main>
 
 $(footer "$1")
@@ -177,11 +190,11 @@ _main
 # list_file helper printing a file list.
 print_sorted_file_list() {
     # Print all .md files from input POSTS_DIR,
-    # reverse sort on DATE= field within,
+    # reverse sort on date: field within,
     # print name translated to output dir.
     find "${IDIR}${1}" -maxdepth 1 -type f -name '*.md' | \
         while read -r f; do
-            printf "%s:%s\n" "$(date -d "$(pub_date "$f")" --iso-8601)" "$f"
+            printf "%s:%s\n" "$(date -d "$(meta_date "$f")" --iso-8601)" "$f"
         done | sort -r | cut -d: -f2
 }
 
@@ -193,9 +206,9 @@ list_files() {(
         tgt=$(echo "$src" | sed 's;.md;.html;')
         cat <<_file
     <section class="list-item">
-        <h1><a href="$(relhreff "${IDIR}$1" "${tgt}")">$(pub_title "$src")</a></h1>
-        $(pub_date_fmt "$src")
-        $(pub_desc_fmt "$src")
+        <h1><a href="$(relhreff "${IDIR}$1" "${tgt}")">$(meta_title_fmt "$src")</a></h1>
+        $(meta_date_fmt "$src")
+        $(meta_summary_fmt "$src")
     </section>
 _file
     done
@@ -224,12 +237,12 @@ list_items() {(
         tgt=$(echo "$src" | sed 's;.md;.html;')
         cat <<_item
     <item>
-        <title>$(pub_title "$src")</title>
+        <title>$(meta_title_fmt "$src")</title>
         <link>${SITE_URL}${1}/$(basename "$tgt")</link>
-        <pubDate>$(date -d "$(pub_date "$src")" --utc)</pubDate>
+        <pubDate>$(date -d "$(meta_date "$src")" --utc)</pubDate>
 
         <guid>${SITE_URL}${1}/$(basename "$tgt")</guid>
-        <description>$(pub_desc "$src")</description>
+        <description>$(meta_summary "$src")</description>
     </item>
 _item
     done

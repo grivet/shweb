@@ -1,7 +1,8 @@
-DATE=2004-03-15
-DESC=The original markdown syntax page as a reference.
-
-# Markdown: Syntax
+<!---
+title: Markdown: Syntax
+date: 2004-03-15
+summary: The original markdown syntax page as a reference.
+-->
 
 *   [Overview](#overview)
     *   [Philosophy](#philosophy)

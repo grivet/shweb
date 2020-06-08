@@ -52,6 +52,9 @@ their default is used:
     # Skipped if this variable is set to "".
     RSS="/feed.xml"
 
+    # Metadata separator
+    META="-->"
+
 The `'*.md'` sources of your articles must be put in `POSTS_DIR` in the
 source directory.
 
@@ -73,29 +76,46 @@ into their respective directories as well:
 
 All `'*.css'` files will be included in each `HTML` page.
 
-## Redaction
+## Metadata
 
-Write your articles in `POSTS_DIR` as `'*.md'` files.
+Articles are written in `POSTS_DIR` as `'*.md'` files.
+Any markdown document can contain metadata. Currently only the following fields are supported:
 
-A macro `'DATE='` is available to force a publication date. If not present,
-the last modification date is used instead. Any format understood by `'date -d'` can be used.
+    <!---
+    title: Article title
+    date: 1970-01-01
+    summary: One line description of an article.
+    -->
 
-    DATE=1970-01-01
+The `${META}` separator is configured by default to `'-->'`. This allows using non-standard
+markdown comments for the metadata container `'<!--- ... -->'` (note the three dash on comment
+open). This separator can be redefined to anything else, this is only a suggestion.
 
-      or e.g.
+Only markdown code written after this `${META}` separator is interpreted into `HTML`.
 
-    DATE=Wed 03 Jun 2020 09:54:08 PM UTC
+### title
 
-The macro `'DESC='` can be used to provide a description of the article.
-This description will appear on the homepage list and in the `RSS` feed.
+The title is used in the site index as well as the atom feed. If no `title` field is defined
+in metadata, the first occurence of the pattern `'^# '`is used as title instead. Only this
+pattern is recognized as alternative.
 
-    DESC=One line description of an article.
+### date
+
+The date is used in the site index as well as the atom feed. The date should be given in a
+format that can be understood by POSIX `'date -d'`. If no date is given, the source file
+last modification time is used instead.
+
+Dates are only shown in documents generated from markdown in the `${POSTS_DIR}` directory.
+
+### summary
+
+The summary is optional. It will be used in the atom feed if present.
 
 ## Caveats
 
 * Only titles of the form `'# Title'` are supported (no `'====...'` underline).
 
-* If `'DATE='` is not used, make sure you backup your files with the original attributes.
+* If `'date: '` is not used, make sure you backup your files with the original attributes.
 
 ## TODO
 
