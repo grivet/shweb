@@ -70,12 +70,15 @@ relhreff() {(
 meta_data() { sed "/^${META}$/q" "$1" | grep "^${2}:" | head -1 | cut -d: -f2-; }
 
 # get date metadata
-meta_date() { meta_data "$1" date; }
+meta_date() {(
+    d=$(meta_data "$1" date)
+    [ -z "$d" ] && echo "@$(stat -c %Y "$1")"
+    echo "$d"
+)}
 
 # get date metadata - HTML element
 meta_date_fmt() {(
     d="$(meta_date "$1")"
-    [ -z "$d" ] && d="@$(stat -c %Y "$1")"
     echo "<time datetime=\"$(date -d "$d" --iso-8601)\">$(date -d "$d" ${DATE_FMT})</time>"
 )}
 
