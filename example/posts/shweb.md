@@ -124,3 +124,4 @@ The summary is optional. It will be used in the atom feed if present.
  - Support article series.
  - Favicon.
  - limit feed length to N last items.
+ - change page title according to current article read.
