@@ -107,7 +107,7 @@ pub_title() { grep -e '^# ' "$1" | head -1 | cut -d' ' -f2-; }
 
 # List all CSS files, using relative path from $1
 style() {
-    find "${IDIR}" -iname "*.css" | while read -r css; do
+    find "${IDIR}" -name "*.css" | while read -r css; do
         cat <<_style
     <link rel="stylesheet" href="$(relhreff "$1" "$css")"/>
 _style
@@ -115,7 +115,11 @@ _style
 }
 
 favicon() {
-    echo "<link rel=icon href=data:,>"
+    if [ -f "${IDIR}/favicon.ico" ]; then
+        echo "<link rel=\"icon\" href=\"$(relhreff "$1" "${IDIR}/favicon.ico")\" type=\"image/x-icon\"/>"
+    else
+        echo "<link rel=\"icon\" href=\"data:,\"/>"
+    fi
 }
 
 feed() {
