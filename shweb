@@ -321,6 +321,7 @@ rm -rf "$ODIR"
 mkdir -p "$ODIR"
 
 find "${IDIR}" -type f \
+    -not -path "${IDIR}/.*" \
     -not -name '*.md' \
     -not -name 'site.conf' | while read -r f; do
     o="${ODIR}${f#${IDIR}*}"
