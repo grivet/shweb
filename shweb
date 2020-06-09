@@ -308,13 +308,13 @@ fi
 rm -rf "$ODIR"
 mkdir -p "$ODIR"
 
-for filetype in css html; do
-    find "${IDIR}" -iname "*.${filetype}" | while read -r f; do
-        o="${ODIR}${f#${IDIR}*}"
-        mkdir -p "$(dirname "$o")"
-        echo "* $f -> $o"
-        cp "$f" "$o"
-    done
+find "${IDIR}" -type f \
+    -not -name '*.md' \
+    -not -name 'site.conf' | while read -r f; do
+    o="${ODIR}${f#${IDIR}*}"
+    mkdir -p "$(dirname "$o")"
+    echo "* $f -> $o"
+    cp "$f" "$o"
 done
 
 find "${IDIR}" -iname '*.md' -print | while read -r f; do

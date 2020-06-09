@@ -119,7 +119,6 @@ The summary is optional. It will be used in the atom feed if present.
 
 ## TODO
 
- - deploy static assets (images, scripts, etc).
  - Support tagging articles.
  - Support article series.
  - Favicon.
