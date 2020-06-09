@@ -137,6 +137,15 @@ nav_menu() {(
     done
 )}
 
+# Return true if $1 is an article
+is_post() {
+    if [ "${1#${IDIR}/${POSTS_DIR}/$(basename "$1")}y" = 'y' ] && [ -f "$1" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 header() {
     cat <<_header
 <!doctype html>
@@ -145,7 +154,7 @@ header() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     $(favicon "$1")
-    <title>${SITE_TITLE}</title>
+    <title>${SITE_TITLE}$(is_post "$1" && echo " | $(meta_title_fmt "$1")")</title>
 $(style "$1")
 </head>
 <body>
@@ -178,14 +187,13 @@ metaless_cat() {
 }
 
 md2html() {(
-    is_post="${1#${IDIR}/${POSTS_DIR}/$(basename "$1")}y"
     cat <<_main
 $(header "$1")
 
 <main>
     <div class="title">
         <h1>$(meta_title_fmt "$1")</h1>
-        $(test "$is_post" = 'y' && meta_date_fmt "$1")
+        $(is_post "$1" && meta_date_fmt "$1")
     </div>
 $(metaless_cat "$1" | sed -e '/^# /d' | $MD2HTML)
 </main>
