@@ -331,6 +331,4 @@ wait
 create_index "/index.html" "/${POSTS_DIR}" "${ODIR}/index.html"
 create_index "/${POSTS_DIR}/index.html" "/${POSTS_DIR}" "${ODIR}/${POSTS_DIR}/index.html"
 
-if [ "$RSS" ]; then
-    create_feed "/${POSTS_DIR}" "${ODIR}${RSS}"
-fi
+[ "$RSS" ] && create_feed "/${POSTS_DIR}" "${ODIR}${RSS}"
