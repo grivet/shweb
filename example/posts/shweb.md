@@ -1,6 +1,6 @@
 # Shweb
 
-Static blog generator, written in POSIX shell.
+Static blog generator written in POSIX shell.
 
 ## Quick start
 
@@ -17,12 +17,12 @@ The website is then available [locally](http://0.0.0.0:8000/).
 ## Installation
 
     make install DESTDIR=~/bin # DESTDIR is memorized
-    make uninstall # Uses DESTDIR previously defined
-    make install # Uses DESTDIR previously defined
+    make uninstall             # Uses DESTDIR previously defined
+    make install               # Uses DESTDIR previously defined
 
-After some edits:
+If you edit the script, shellcheck can be used with:
 
-    make check # Run shellcheck
+    make check                 # Run shellcheck
 
 ## Usage
 
