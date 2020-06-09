@@ -129,7 +129,7 @@ feed() {
 }
 
 nav_menu() {(
-    IFS=$'\n'
+    IFS="$(printf '%b_' '\n')"; IFS="${IFS%_}" # protect trailing \n
     for line in $NAV_MENU; do
         path="$(echo "$line" | cut -d: -f1)"
         name="$(echo "$line" | cut -d: -f2)"
@@ -185,7 +185,7 @@ $(header "$1")
 <main>
     <div class="title">
         <h1>$(meta_title_fmt "$1")</h1>
-        $(test $is_post = 'y' && meta_date_fmt "$1")
+        $(test "$is_post" = 'y' && meta_date_fmt "$1")
     </div>
 $(metaless_cat "$1" | sed -e '/^# /d' | $MD2HTML)
 </main>
