@@ -220,11 +220,11 @@ list_files() {(
     print_sorted_file_list "$2" | while read -r src; do
         tgt=$(echo "$src" | sed 's;.md;.html;')
         cat <<_file
-    <section class="list-item">
+    <div>
         <h1><a href="$(relhreff "${IDIR}$1" "${tgt}")">$(meta_title_fmt "$src")</a></h1>
         $(meta_date_fmt "$src")
         $(meta_summary_fmt "$src")
-    </section>
+    </div>
 _file
     done
 )}
