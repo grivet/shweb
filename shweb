@@ -67,7 +67,7 @@ relhreff() {(
 # Extract metadata
 # $1: source file
 # $2: metadata name
-meta_data() { sed "/^${META}$/q" "$1" | grep "^${2}:" | head -1 | cut -d: -f2-; }
+meta_data() { sed "/^${META}$/q" "$1" | grep "^${2}:" |  sed "s/${2}:[[:space:]]\?//" | head -1; }
 
 # get date metadata
 meta_date() {(
