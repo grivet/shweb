@@ -85,6 +85,7 @@ Any markdown document can contain metadata. Currently only the following fields 
     title: Article title
     date: 1970-01-01
     summary: One line description of an article.
+    draft
     -->
 
 The `${META}` separator is configured by default to `'-->'`. This allows using non-standard
@@ -110,6 +111,11 @@ Dates are only shown in documents generated from markdown in the `${POSTS_DIR}` 
 ### summary
 
 The summary is optional. It will be used in the atom feed if present.
+
+### draft
+
+An article can be marked as a draft. If will still be processed as markdown,
+but it won't be listed by the indexes (`RSS` feed or directory indexes).
 
 ## Caveats
 
