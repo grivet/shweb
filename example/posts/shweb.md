@@ -21,10 +21,6 @@ The website is then available [locally](http://0.0.0.0:8000/).
     make install               # Uses DESTDIR previously defined
     make clean                 # Removes DESTDIR memo
 
-If you edit the script, shellcheck can be used with:
-
-    make check                 # Run shellcheck
-
 ## Usage
 
 Create your source directory. Write `'site.conf'` within. Mandatory variables are:
