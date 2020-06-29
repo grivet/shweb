@@ -128,4 +128,3 @@ but it won't be listed by the indexes (`RSS` feed or directory indexes).
 
  - Support tagging articles.
  - Support article series.
- - limit feed length to N last items.
