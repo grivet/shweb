@@ -95,7 +95,7 @@ Only markdown code written after this `${META}` separator is interpreted into `H
 
 The title is used in the site index as well as the atom feed. If no `title` field is defined
 in metadata, the first occurence of the pattern `'^# '`is used as title instead. Only this
-pattern is recognized as alternative.
+pattern is recognized, alternatives such as `'=====...'` underline are not.
 
 ### date
 
