@@ -16,3 +16,6 @@ clean:
 .PHONY: .config.mk
 .config.mk:
 	@echo "DESTDIR=$(DESTDIR)" > $@
+
+check:
+	@shellcheck -s sh $(SCRIPT)
