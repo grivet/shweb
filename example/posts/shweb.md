@@ -52,6 +52,11 @@ their default is used:
     # Metadata separator
     META="-->"
 
+    # HEAD finisher
+    # Included at the end of the <head> section.
+    # Can be used to enable a JS payload or anything.
+    HEAD=""
+
 The `'*.md'` sources of your articles must be put in `POSTS_DIR` in the
 source directory.
 

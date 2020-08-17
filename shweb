@@ -119,6 +119,15 @@ _style
     done
 }
 
+# List all CSS files, using relative path from $1
+script() {
+    find "${IDIR}" -name "*.js" | while read -r js; do
+        cat <<_script
+    <script src="$(relhreff "$1" "$js")"></script>
+_script
+    done
+}
+
 favicon() {
     if [ -f "${IDIR}/favicon.ico" ]; then
         echo "<link rel=\"icon\" href=\"$(relhreff "$1" "${IDIR}/favicon.ico")\" type=\"image/x-icon\"/>"
@@ -161,6 +170,8 @@ header() {
     $(favicon "$1")
     <title>${SITE_TITLE}$(is_post "$1" && echo " | $(meta_title_fmt "$1")")</title>
 $(style "$1")
+$(is_post "$1" && script "$1")
+    $HEAD
 </head>
 <body>
     <header>
