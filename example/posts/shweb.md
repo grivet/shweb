@@ -4,15 +4,14 @@ Static blog generator written in POSIX shell.
 
 ## Quick start
 
+    cargo install pulldown-cmark
     ./shweb ./example
     python -m http.server 8000 --directory /tmp/shweb
 
-The example configuration expects a markdown-to-HTML command at `'/usr/bin/markdown'`.
-You can use [discount] for example.
+The example configuration uses the [pulldown-cmark](https://github.com/raphlinus/pulldown-cmark) interpreter.
+It implements [commonmark](https://commonmark.org/), a better defined version of markdown.
 
 The website is then available [locally](http://0.0.0.0:8000/).
-
-[discount]: https://github.com/Orc/discount
 
 ## Installation
 
