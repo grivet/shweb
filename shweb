@@ -119,7 +119,7 @@ _style
     done
 }
 
-# List all CSS files, using relative path from $1
+# List all JS files, using relative path from $1
 script() {
     find "${IDIR}" -name "*.js" | while read -r js; do
         cat <<_script
